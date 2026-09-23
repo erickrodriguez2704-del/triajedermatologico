@@ -6,3 +6,5 @@ altair
 tensorflow-cpu
 vit-keras
 opencv-python-headless
+qrcode
+flask
