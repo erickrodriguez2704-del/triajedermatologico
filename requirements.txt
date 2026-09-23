@@ -3,7 +3,7 @@ numpy
 pandas
 Pillow
 altair
-tensorflow-cpu
+tensorflow-cpu==2.15.0
 vit-keras
 opencv-python-headless
 qrcode
