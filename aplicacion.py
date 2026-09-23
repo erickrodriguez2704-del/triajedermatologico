@@ -130,24 +130,10 @@ def cargar_ecosistema_ia():
     df_all = pd.get_dummies(df_all, columns=['sexo', 'localizacion'])
     meta_cols = ['edad_norm'] + [c for c in df_all.columns if c.startswith('sexo_') or c.startswith('localizacion_')]
 
-    # 2. Reconstruir ResNet50 Multimodal
-    input_img_res = layers.Input(shape=(224, 224, 3), name='input_imagen_res')
-    base_resnet = ResNet50(weights=None, include_top=False, input_tensor=input_img_res)
-    x_img_res = layers.GlobalAveragePooling2D()(base_resnet.output)
-    x_img_res = layers.Dense(256, activation='relu')(x_img_res)
-    x_img_res = layers.Dropout(0.5)(x_img_res)
-
-    input_meta_res = layers.Input(shape=(len(meta_cols),), name='input_clinico_res')
-    x_meta_res = layers.Dense(32, activation='relu')(input_meta_res)
-    x_meta_res = layers.Dropout(0.75)(x_meta_res)
-
-    concat_res = layers.Concatenate()([x_img_res, x_meta_res])
-    x_final_res = layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01))(concat_res)
-    x_final_res = layers.Dropout(0.5)(x_final_res)
-    pred_res = layers.Dense(3, activation='softmax')(x_final_res)
-
-    modelo_resnet = models.Model(inputs=[input_img_res, input_meta_res], outputs=pred_res)
-    modelo_resnet.load_weights(os.path.join(BASE_DIR, 'resnet50_multimodal.weights.h5'))
+    # 2. Cargar ResNet50 Multimodal (Nuevo formato nativo .keras)
+    # Toda la reconstrucción manual de capas ha sido eliminada
+    ruta_resnet = os.path.join(BASE_DIR, 'resnet50_multimodal.keras') # Asegúrate de que el nombre coincida con tu archivo
+    modelo_resnet = tf.keras.models.load_model(ruta_resnet)
 
     # 3. Reconstruir ViT Multimodal
     input_img_vit = layers.Input(shape=(224, 224, 3), name='input_imagen_vit')
