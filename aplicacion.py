@@ -117,21 +117,6 @@ if not st.session_state['autenticado']:
 # --- 3. CARGA DE MOTOR IA HÍBRIDO (VISIÓN + CLÍNICA) ---
 @st.cache_resource(show_spinner="Cargando ecosistema multimodal...")
 def cargar_ecosistema_ia():
-    import os
-    import urllib.request
-
-    # --- DESCARGA AUTOMÁTICA DE PESOS SI NO EXISTEN ---
-    URL_PESOS_RESNET = "https://huggingface.co/erickkkkk1/triaje-dermatologico-pesos/resolve/main/resnet50_multimodal.weights.h5"
-    URL_PESOS_VIT = "https://huggingface.co/erickkkkk1/triaje-dermatologico-pesos/resolve/main/vit_multimodal_v2.h5"
-
-    if not os.path.exists('resnet50_multimodal.weights.h5'):
-        with st.spinner("Descargando pesos de ResNet50..."):
-            urllib.request.urlretrieve(URL_PESOS_RESNET, 'resnet50_multimodal.weights.h5')
-
-    if not os.path.exists('vit_multimodal_v2.h5'):
-        with st.spinner("Descargando pesos de Vision Transformer..."):
-            urllib.request.urlretrieve(URL_PESOS_VIT, 'vit_multimodal_v2.h5')
-
     # 1. Leer metadatos para reconstruir las columnas tabulares exactas
     df_all = pd.concat([pd.read_csv('metadata_trainCLINICO.csv'), pd.read_csv('metadata_valCLINICO.csv'), pd.read_csv('metadata_testCLINICO.csv')], ignore_index=True)
     df_all['edad_norm'] = df_all['edad'] / 100.0
