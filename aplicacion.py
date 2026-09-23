@@ -133,7 +133,7 @@ def cargar_ecosistema_ia():
 
     # 2. Cargar ResNet50 Multimodal (Nuevo formato nativo .keras)
     # Toda la reconstrucción manual de capas ha sido eliminada
-    ruta_resnet = os.path.join(BASE_DIR, 'resnet50_multimodal.keras') # Asegúrate de que el nombre coincida con tu archivo
+    ruta_resnet = os.path.join(BASE_DIR, 'resnet50_multimodal_final.keras') # Asegúrate de que el nombre coincida con tu archivo
     modelo_resnet = tf.keras.models.load_model(ruta_resnet)
 
     # 3. Reconstruir ViT Multimodal
