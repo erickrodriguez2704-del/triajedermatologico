@@ -23,6 +23,7 @@ from datetime import datetime
 from PIL import Image
 import pillow_heif
 pillow_heif.register_heif_opener()
+import rawpy
 import altair as alt
 import pandas as pd
 
@@ -328,16 +329,21 @@ with tab_analisis:
         if 'imagen_actual' not in st.session_state:
             st.session_state['imagen_actual'] = None
 
-        st.info(
-            "Haz clic abajo para subir una imagen desde tu PC o seleccionar una foto de la galería de tu celular.")
-
-        # Añadimos heic, heif y webp a la lista de formatos permitidos
+        st.info("Haz clic abajo para subir una imagen desde tu PC o seleccionar una foto de la galería.")
         archivo_capturado = st.file_uploader("Cargar fotografía de la lesión",
-                                             type=['jpg', 'jpeg', 'png', 'heic', 'heif', 'webp'])
+                                             type=['jpg', 'jpeg', 'png', 'heic', 'heif', 'webp', 'dng'])
 
         if archivo_capturado:
-            # Usamos PIL directo que ahora entiende HEIC automáticamente
-            img_pil = Image.open(archivo_capturado).convert('RGB')
+            # Revisamos si el archivo es un DNG
+            if archivo_capturado.name.lower().endswith('.dng'):
+                # Revelado especial del RAW
+                with rawpy.imread(archivo_capturado) as raw:
+                    rgb = raw.postprocess()
+                img_pil = Image.fromarray(rgb)
+            else:
+                # Lectura normal para JPG, HEIC, PNG...
+                img_pil = Image.open(archivo_capturado).convert('RGB')
+
             st.session_state['imagen_actual'] = img_pil
         else:
             st.session_state['imagen_actual'] = None

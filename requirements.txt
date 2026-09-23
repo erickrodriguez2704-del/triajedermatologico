@@ -9,3 +9,5 @@ opencv-python-headless
 qrcode
 flask
 pillow-heif==0.16.0
+rawpy==0.23.2
+imageio==2.36.0
