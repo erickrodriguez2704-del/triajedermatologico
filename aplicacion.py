@@ -45,7 +45,7 @@ keras.ops = KerasOpsTraductor()
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input as resnet_prep
 from vit_keras import vit
 from tensorflow.keras import layers, models
-import servidor_qr
+
 
 # --- 1. CONFIGURACIÓN INICIAL Y RUTAS ABSOLUTAS ---
 DIRECTORIO_BASE = os.path.dirname(os.path.abspath(__file__))
@@ -322,8 +322,10 @@ with tab_analisis:
 
     with col_escaneo:
         st.subheader("2. Captura macroscópica")
-        metodo_captura = st.radio("Seleccione el método de ingreso:",
-                                  [" Escáner celular (QR)", " Subir desde computadora"])
+        metodo_captura = st.radio(
+            "Seleccione el método de ingreso:",
+            ["Subir archivo (Galería/PC)", "Usar cámara en vivo"]
+        )
 
         if 'imagen_actual' not in st.session_state: st.session_state['imagen_actual'] = None
         if 'metodo_anterior' not in st.session_state:
@@ -332,28 +334,23 @@ with tab_analisis:
             st.session_state['imagen_actual'] = None
             st.session_state['metodo_anterior'] = metodo_captura
 
-        if metodo_captura == " Escáner celular (QR)":
-            estado_servidor = servidor_qr.iniciar_servidor_qr()
-            if estado_servidor["activo"]:
-                st.info("Escanee el código QR para transferir la captura desde el dispositivo.")
-                img_qr = servidor_qr.generar_imagen_qr(estado_servidor["url"])
-                st.image(img_qr, width=200)
-                if st.button("Obtener foto del servidor QR"):
-                    ruta_foto = servidor_qr.obtener_ultima_foto()
-                    if ruta_foto:
-                        st.session_state['imagen_actual'] = Image.open(ruta_foto).convert('RGB')
-                        st.success(" Fotografía recibida.")
-                    else:
-                        st.warning("Aún no se ha recibido ninguna foto.")
+        archivo_capturado = None
+
+        if metodo_captura == "Subir archivo (Galería/PC)":
+            st.info("Si abres esta página desde tu celular, podrás seleccionar una foto de tu galería.")
+            archivo_capturado = st.file_uploader("Seleccione la fotografía de la lesión", type=['jpg', 'jpeg', 'png'])
         else:
-            archivo_local = st.file_uploader("Seleccione la fotografía de la lesión", type=['jpg', 'jpeg', 'png'])
-            if archivo_local:
-                file_bytes = np.asarray(bytearray(archivo_local.read()), dtype=np.uint8)
-                img_cv2 = cv2.imdecode(file_bytes, 1)
-                img_rgb = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB)
-                st.session_state['imagen_actual'] = Image.fromarray(img_rgb)
-            else:
-                st.session_state['imagen_actual'] = None
+            st.info("Si abres esta página desde tu celular, se activará tu cámara para tomar la foto directamente.")
+            archivo_capturado = st.camera_input("Capturar fotografía")
+
+        if archivo_capturado:
+            file_bytes = np.asarray(bytearray(archivo_capturado.read()), dtype=np.uint8)
+            img_cv2 = cv2.imdecode(file_bytes, 1)
+            img_rgb = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB)
+            st.session_state['imagen_actual'] = Image.fromarray(img_rgb)
+        # Si cambia de método y no hay foto nueva, se limpia la pantalla
+        elif st.session_state['metodo_anterior'] != metodo_captura:
+            st.session_state['imagen_actual'] = None
 
         imagen_cargada = st.session_state['imagen_actual']
 
