@@ -8,3 +8,4 @@ vit-keras
 opencv-python-headless
 qrcode
 flask
+pillow-heif==0.16.0
