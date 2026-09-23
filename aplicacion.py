@@ -118,22 +118,14 @@ if not st.session_state['autenticado']:
 @st.cache_resource(show_spinner="Cargando ecosistema multimodal...")
 def cargar_ecosistema_ia():
     import os
-    import urllib.request
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    # --- DESCARGA AUTOMÁTICA DE PESOS SI NO EXISTEN ---
-    URL_PESOS_RESNET = "https://huggingface.co/erickkkkk1/triaje-dermatologico-pesos/resolve/main/resnet50_multimodal.weights.h5"
-    URL_PESOS_VIT = "https://huggingface.co/erickkkkk1/triaje-dermatologico-pesos/resolve/main/vit_multimodal_v2.h5"
-
-    if not os.path.exists('resnet50_multimodal.weights.h5'):
-        with st.spinner("Descargando pesos de ResNet50..."):
-            urllib.request.urlretrieve(URL_PESOS_RESNET, 'resnet50_multimodal.weights.h5')
-
-    if not os.path.exists('vit_multimodal_v2.h5'):
-        with st.spinner("Descargando pesos de Vision Transformer..."):
-            urllib.request.urlretrieve(URL_PESOS_VIT, 'vit_multimodal_v2.h5')
-
-    # 1. Leer metadatos para reconstruir las columnas tabulares exactas
-    df_all = pd.concat([pd.read_csv('metadata_trainCLINICO.csv'), pd.read_csv('metadata_valCLINICO.csv'), pd.read_csv('metadata_testCLINICO.csv')], ignore_index=True)
+    # 1. Leer metadatos usando la ruta absoluta para evitar FileNotFoundError
+    df_all = pd.concat([
+            pd.read_csv(os.path.join(BASE_DIR, 'metadata_trainCLINICO.csv')),
+            pd.read_csv(os.path.join(BASE_DIR, 'metadata_valCLINICO.csv')),
+            pd.read_csv(os.path.join(BASE_DIR, 'metadata_testCLINICO.csv'))
+        ], ignore_index=True)
     df_all['edad_norm'] = df_all['edad'] / 100.0
     df_all = pd.get_dummies(df_all, columns=['sexo', 'localizacion'])
     meta_cols = ['edad_norm'] + [c for c in df_all.columns if c.startswith('sexo_') or c.startswith('localizacion_')]
@@ -155,7 +147,7 @@ def cargar_ecosistema_ia():
     pred_res = layers.Dense(3, activation='softmax')(x_final_res)
 
     modelo_resnet = models.Model(inputs=[input_img_res, input_meta_res], outputs=pred_res)
-    modelo_resnet.load_weights('resnet50_multimodal.weights.h5')
+    modelo_resnet.load_weights(os.path.join(BASE_DIR, 'resnet50_multimodal.weights.h5'))
 
     # 3. Reconstruir ViT Multimodal
     input_img_vit = layers.Input(shape=(224, 224, 3), name='input_imagen_vit')
@@ -174,7 +166,7 @@ def cargar_ecosistema_ia():
     pred_vit = layers.Dense(3, activation='softmax')(x_final_vit)
 
     modelo_vit = models.Model(inputs=[input_img_vit, input_meta_vit], outputs=pred_vit)
-    modelo_vit.load_weights('vit_multimodal_v2.h5')
+    modelo_vit.load_weights(os.path.join(BASE_DIR, 'vit_multimodal_v2.h5'))
 
     return modelo_resnet, modelo_vit, meta_cols
 
