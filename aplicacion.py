@@ -1,8 +1,7 @@
 import os
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
-import os
-os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
 
 import streamlit as st
 
