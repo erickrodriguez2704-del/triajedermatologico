@@ -1,0 +1,2 @@
+resnet50_multimodal.weighst.h5 filter=lfs diff=lfs merge=lfs -text
+vit_multimodal_v2.h5 filter=lfs diff=lfs merge=lfs -text
