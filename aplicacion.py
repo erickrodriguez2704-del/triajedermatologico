@@ -314,14 +314,14 @@ with tab_analisis:
         st.subheader("1. Datos del paciente")
         nombre = st.text_input("Nombre completo")
         edad = st.number_input("Edad (Expediente)", min_value=1, max_value=120, value=45)
-        sexo_ui = st.selectbox("Sexo", ["Femenino", "Masculino", "Desconocido"])
+        sexo_ui = st.selectbox("Sexo", ["Femenino", "Masculino"])
         loc_ui = st.selectbox("Localización de la lesión", [
             "Extremidad superior (Brazos)", "Extremidad inferior (Piernas)",
             "Torso anterior (Pecho/Abdomen)", "Torso posterior (Espalda)",
-            "Cabeza / Cuello", "Palmas / Plantas", "Oral / Genital",
-            "Torso lateral", "Desconocido"
+            "Cabeza / Cuello", "Cara", "Palmas / Plantas", "Oral / Genital",
+            "Torso lateral"
         ])
-        fototipo_ui = st.selectbox("Fototipo de piel (fitzpatrick)", ["1", "2", "3", "4", "5", "6", "Desconocido"])
+        fototipo_ui = st.selectbox("Fototipo de piel (fitzpatrick)", ["1", "2", "3", "4", "5", "6"])
 
     with col_escaneo:
         st.subheader("2. Captura macroscópica")
@@ -417,7 +417,7 @@ with tab_analisis:
                                 "Palmas / Plantas": "palms/soles",
                                 "Oral / Genital": "oral/genital",
                                 "Torso lateral": "lateral torso",
-                                "Desconocido": "unknown"
+                                "Cara": "head/neck"
                             }
 
                             vector_clinico = np.zeros(len(meta_cols), dtype=np.float32)
@@ -664,7 +664,7 @@ with tab_evolucion:
                             if variacion > 15.0:
                                 st.error("ALERTA CLÍNICA: Crecimiento acelerado")
                                 st.warning(
-                                    f"La lesión ha incrementado su tamaño en un **{variacion:.2f}%**. Según el criterio 'E' (Evolución) de la regla ABCDE, los cambios rápidos en la extensión geométrica son un marcador de alto riesgo de malignidad (proliferación celular atípica). Requiere revisión dermatoscópica urgente.")
+                                    f"La lesión ha incrementado su tamaño en un **{variacion:.2f}%**. Según el criterio 'E' (Evolución) de la regla ABCDE, los cambios rápidos en la extensión geométrica son un marcador de alto riesgo de malignidad. Requiere revisión dermatoscópica urgente.")
                             elif variacion < -10.0:
                                 st.success("Reducción detectada")
                                 st.info(
